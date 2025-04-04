@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎯 Guess the Number Game</title>
+  <style>
+    :root {
+      --primary: #4CAF50;
+      --danger: #f44336;
+      --hint: #2196F3;
+      --bg: linear-gradient(120deg, #89f7fe, #66a6ff);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .game-title {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+      color: transparent;
+      background: linear-gradient(to right, #ff416c, #ff4b2b);
+      -webkit-background-clip: text;
+      background-clip: text;
+      text-shadow: 2px 2px 10px rgba(255, 255, 255, 0.2);
+    }
+
+    .game-container {
+      background: white;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      transition: all 0.3s ease-in-out;
+    }
+
+    h1 {
+      margin-bottom: 0.5rem;
+      color: #333;
+    }
+
+    p {
+      color: #555;
+      margin: 0.5rem 0;
+    }
+
+    input[type="number"] {
+      padding: 12px;
+      width: 90%;
+      font-size: 1rem;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      margin: 1rem 0;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    input[type="number"]:focus {
+      border-color: var(--primary);
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      margin: 5px 5px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s ease-in-out;
+      color: white;
+    }
+
+    .submit-btn {
+      background: var(--primary);
+    }
+
+    .reset-btn {
+      background: var(--danger);
+    }
+
+    .hint-btn {
+      background: var(--hint);
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+      transform: scale(1.05);
+    }
+
+    #message, #hint, #chances, #emoji {
+      margin-top: 10px;
+      font-weight: 500;
+    }
+
+    #message {
+      font-size: 1.1rem;
+    }
+
+    #hint {
+      font-style: italic;
+      color: #666;
+    }
+
+    #chances {
+      color: #40d5d0;
+    }
+
+    #play-again-buttons {
+      margin-top: 15px;
+      display: none;
+    }
+
+    @media (max-width: 480px) {
+      .game-container {
+        padding: 1.5rem;
+      }
+
+      .game-title {
+        font-size: 2rem;
+      }
+
+      input[type="number"], .btn {
+        width: 100%;
+        margin: 10px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-title">🎮 Guess the Number Game</div>
+
+  <div class="game-container">
+    <h1>🎯 Let's Play!</h1>
+    <p>I’m thinking of a number between 1 and 100</p>
+    <input type="number" id="guessInput" placeholder="Your guess..." />
+    <div>
+      <button onclick="checkGuess()" class="btn submit-btn">Submit</button>
+      <button onclick="giveHint()" class="btn hint-btn">Hint</button>
+      <button onclick="resetGame()" class="btn reset-btn">Reset</button>
+    </div>
+    <p id="message"></p>
+    <p id="hint"></p>
+    <p id="chances">Chances left: 5</p>
+    <p id="emoji" style="font-size: 2rem;"></p>
+
+    <div id="play-again-buttons">
+      <p>Do you want to play again?</p>
+      <button class="btn submit-btn" onclick="resetGame()">Yes</button>
+      <button class="btn reset-btn" onclick="endGame()">No</button>
+    </div>
+  </div>
+
+  <script>
+    let secretNumber = Math.floor(Math.random() * 100) + 1;
+    let chancesLeft = 5;
+    let gameOver = false;
+
+    function checkGuess() {
+      if (gameOver) return;
+
+      const guess = Number(document.getElementById("guessInput").value);
+      const message = document.getElementById("message");
+      const hint = document.getElementById("hint");
+      const chancesText = document.getElementById("chances");
+      const emoji = document.getElementById("emoji");
+      const playAgain = document.getElementById("play-again-buttons");
+
+      if (!guess || guess < 1 || guess > 100) {
+        message.textContent = "🚫 Please enter a number between 1 and 100.";
+        hint.textContent = "";
+        return;
+      }
+
+      chancesLeft--;
+
+      if (guess === secretNumber) {
+        message.textContent = `🎉 You got it! The number was ${secretNumber}`;
+        hint.textContent = "Awesome job!";
+        emoji.textContent = "🎊";
+        gameOver = true;
+        playAgain.style.display = "block";
+      } else {
+        message.textContent = guess < secretNumber ? "📉 Too low!" : "📈 Too high!";
+        let distance = Math.abs(secretNumber - guess);
+        if (distance <= 5) {
+          hint.textContent = "🔥 Super close!";
+        } else if (distance <= 15) {
+          hint.textContent = "🌡️ Getting warmer...";
+        } else {
+          hint.textContent = "❄️ Ice cold!";
+        }
+
+        if (chancesLeft === 0) {
+          message.textContent = `💀 Game Over! The number was ${secretNumber}`;
+          hint.textContent = "Better luck next time!";
+          emoji.textContent = "😞";
+          gameOver = true;
+          playAgain.style.display = "block";
+        }
+      }
+
+      chancesText.textContent = `Chances left: ${chancesLeft}`;
+    }
+
+    function giveHint() {
+      if (gameOver) return;
+
+      let hintMessage = "";
+
+      hintMessage += secretNumber % 2 === 0 ? "🟢 It's an even number. " : "🟠 It's an odd number. ";
+      hintMessage += secretNumber > 50 ? "🔼 It's more than 50." : "🔽 It's 50 or less.";
+
+      document.getElementById("hint").textContent = hintMessage;
+    }
+
+    function resetGame() {
+      secretNumber = Math.floor(Math.random() * 100) + 1;
+      chancesLeft = 5;
+      gameOver = false;
+      document.getElementById("guessInput").value = "";
+      document.getElementById("message").textContent = "";
+      document.getElementById("hint").textContent = "";
+      document.getElementById("emoji").textContent = "";
+      document.getElementById("chances").textContent = "Chances left: 5";
+      document.getElementById("play-again-buttons").style.display = "none";
+    }
+
+    function endGame() {
+      const container = document.querySelector('.game-container');
+      container.innerHTML = `<h1>Thanks for playing! 👋</h1><p>Refresh the page to start again.</p>`;
+    }
+  </script>
+</body>
+</html>
